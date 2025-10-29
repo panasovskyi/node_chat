@@ -17,17 +17,6 @@ const get = async (req, res) => {
 
 const create = async (req, res) => {
   const { message, roomId } = req.body;
-  const userId = req.user.id;
-  const login = req.user.login;
-
-  const isUser = await User.findOne({ where: { id: userId, login } });
-
-  if (!isUser) {
-    throw ApiError.notFound({
-      user: 'User not found',
-    });
-  }
-
   if (!roomId || isNaN(roomId)) {
     throw ApiError.notFound({
       room: 'Invalid or missing roomId',

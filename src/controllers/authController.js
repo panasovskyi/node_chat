@@ -7,14 +7,19 @@ import bcrypt from 'bcrypt';
 
 const register = async (req, res) => {
   const { login, email, password } = req.body;
+
   const errors = {
     email: validation.validateEmail(email),
     password: validation.validatePassword(password),
     name: validation.validateName(login),
   };
 
-  if (!login || !email || !password) {
-    throw ApiError.badRequest(errors);
+  const filteredErrors = Object.fromEntries(
+    Object.entries(errors).filter(([key, value]) => value),
+  );
+
+  if (Object.keys(filteredErrors).length > 0) {
+    throw ApiError.badRequest(filteredErrors);
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
