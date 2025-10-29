@@ -20,6 +20,49 @@ const create = async (req, res) => {
   res.status(201).json({ room: newRoom });
 };
 
+const remove = async (req, res) => {
+  const roomId = req.query.roomId;
+  const id = Number(roomId);
+
+  if (isNaN(id)) {
+    throw new ApiError.badRequest('Invalid roomId');
+  }
+
+  const room = await roomService.findRoomById(id);
+
+  if (!room) {
+    throw ApiError.notFound('Room not found');
+  }
+
+  await roomService.removeRoom(id);
+
+  res.sendStatus(204);
+}
+
+const edit = async (req, res) => {
+  const { roomId } = req.query;
+  const name = req.body.name;
+  const id = Number(roomId);
+
+  if (isNaN(id)) {
+    throw new ApiError.badRequest('Invalid roomId');
+  }
+
+  if (!name) {
+    throw new ApiError.badRequest('Invalid room name');
+  }
+
+  const room = await roomService.findRoomById(id);
+
+  if (!room) {
+    throw ApiError.notFound('Room not found');
+  }
+
+  const newRoom = await roomService.editRoom(id, name);
+
+  res.status(200).json(newRoom);
+}
+
 const get = async (req, res) => {
   const allRooms = await roomService.getAllRooms();
 
@@ -27,7 +70,15 @@ const get = async (req, res) => {
 };
 
 const getUserRooms = async (req, res) => {
-  const userRooms = await UserRoom.findAll();
+  const { roomId } = req.query;
+
+  const id = Number(roomId);
+
+  if (isNaN(id)) {
+    throw new ApiError.badRequest('Invalid roomId');
+  }
+
+  const userRooms = await UserRoom.findAll({ where: { roomId: id } });
 
   res.status(200).json(userRooms);
 };
@@ -43,19 +94,13 @@ const join = async (req, res) => {
     });
   }
 
-  /* const edit = async (req, res) => {
-  const { roomId } = req.params;
-  const name = req.body.name;
-
-} */
-
-  /* const existing = await UserRoom.findOne({
+  const existing = await UserRoom.findOne({
     where: { userId, roomId: room.id },
   });
 
   if (existing) {
     throw ApiError.badRequest({ room: 'You are already in this room' });
-  } */
+  }
 
   await userRoomService.createUserRoom(room.id, userId);
 
@@ -64,7 +109,9 @@ const join = async (req, res) => {
 
 export const roomController = {
   create,
+  remove,
   get,
   getUserRooms,
   join,
+  edit,
 };

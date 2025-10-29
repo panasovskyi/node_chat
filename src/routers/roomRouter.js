@@ -14,3 +14,5 @@ roomRouter.get(
   catchError(roomController.getUserRooms),
 );
 roomRouter.post('/join', authMiddleware, catchError(roomController.join));
+roomRouter.delete('/delete', authMiddleware, catchError(roomController.remove));
+roomRouter.patch('/update', authMiddleware, catchError(roomController.edit));

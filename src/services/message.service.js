@@ -1,7 +1,7 @@
 import { Message } from '../models/index.js';
 
-const getAllMessages = async () => {
-  const messages = await Message.findAll();
+const getMessagesByRoom = async (roomId) => {
+  const messages = await Message.findAll({ where: { roomId: +roomId } });
 
   return messages;
 };
@@ -18,6 +18,6 @@ const createMessage = async (userId, login, roomId, text) => {
 };
 
 export const messageService = {
-  getAllMessages,
+  getMessagesByRoom,
   createMessage,
 };
